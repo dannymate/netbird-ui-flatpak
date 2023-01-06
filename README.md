@@ -6,9 +6,10 @@ I decided to try to repackage the [NetBird-UI](https://github.com/netbirdio/netb
 I am unlikely to upload this to flathub myself unless people really want this for some reason. **IF YOU WANT TO UPLOAD TO FLATHUB PLEASE CHANGE THE APP-ID.**
 
 ## Pics
-Status Tray Menu             |  Settings Window
-:-------------------------:|:-------------------------:
-![image](https://user-images.githubusercontent.com/26135914/211106570-da155fb1-a2c8-4972-877f-c94c2d96a55d.png) |  ![image](https://user-images.githubusercontent.com/26135914/211106797-5308d189-db4f-44e1-aea1-0cdbfc36eb41.png)
+Status Tray Menu             |  Settings Window        |   Menu Item
+:-------------------------:|:-------------------------:|:-----------------------:
+![image](https://user-images.githubusercontent.com/26135914/211106570-da155fb1-a2c8-4972-877f-c94c2d96a55d.png) |  ![image](https://user-images.githubusercontent.com/26135914/211106797-5308d189-db4f-44e1-aea1-0cdbfc36eb41.png)   | ![image](https://user-images.githubusercontent.com/26135914/211107665-f8097e75-19fc-4f55-a885-875e2b112a91.png)
+
 
 ## Build Instructions
 https://docs.flatpak.org/en/latest/first-build.html
