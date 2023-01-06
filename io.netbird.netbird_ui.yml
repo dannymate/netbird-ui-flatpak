@@ -1,0 +1,111 @@
+app-id: io.netbird.netbird_ui
+runtime: org.gnome.Platform
+sdk: org.gnome.Sdk
+runtime-version: "43"
+rename-icon: netbird
+
+## If running in dev mode
+# Run in terminal: xhost "+si:localuser:$(id -nu)"
+# Add to top of the netbird-ui-launcher.sh commands: - "export DISPLAY=:0"
+
+command: /app/bin/netbird-ui-launcher.sh
+
+finish-args:
+  - --talk-name=org.freedesktop.portal.Background # Should allow the app to run in the background
+
+  - --share=network # Allows netbird to access X11 display
+  - --share=ipc # Allows the app to show in the tray
+
+  - --device=all # Prevent yelling about missing devices. Likely due to needing access to network devices.
+  #  - --device=dri # OpenGL needed for Settings window management. It's redundant due to being forced to use 'all'.
+
+  - --nodevice=shm # Not sure if good practice or not as we don't need shm access.
+  - --nodevice=kvm # Not sure if good practice or not as we don't need kvm access.
+
+  - --socket=x11 # Only operates in X11 mode
+  - --socket=fallback-x11
+  - --filesystem=/run/netbird.sock # Need access to the netbird socket
+  - --filesystem=xdg-run/netbird.sock # Not sure if this is needed but saw it in a few places
+
+modules:
+  - shared-modules/intltool/intltool-0.51.json # Dependency of libdbusmenu-gtk3
+
+  - name: libdbusmenu-gtk3 # Dependency of libayatana-appindicator
+    buildsystem: autotools
+    build-options:
+      cflags: -Wno-error
+      env:
+        HAVE_VALGRIND_FALSE: "#"
+        HAVE_VALGRIND_TRUE: ""
+    config-opts:
+      - --with-gtk=3
+      - --disable-dumper
+      - --disable-static
+      - --disable-tests
+      - --disable-gtk-doc
+      - --enable-introspection=no
+      - --disable-vala
+    sources:
+      - type: archive
+        url: https://launchpad.net/libdbusmenu/16.04/16.04.0/+download/libdbusmenu-16.04.0.tar.gz
+        sha256: b9cc4a2acd74509435892823607d966d424bd9ad5d0b00938f27240a1bfa878a
+    cleanup:
+      - "/include"
+      - "/libexec"
+      - "/lib/pkgconfig"
+      - "/lib/*.la"
+      - "/share/doc"
+      - "/share/libdbusmenu"
+      - "/share/gtk-doc"
+      - "/share/gir-1.0"
+
+  - name: ayatana-ido # Dependency of libayatana-appindicator
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/AyatanaIndicators/ayatana-ido.git
+        tag: 0.9.1
+
+  - name: libayatana-indicator # Dependency of libayatana-appindicator
+    buildsystem: cmake-ninja
+    sources:
+      - type: git
+        url: https://github.com/AyatanaIndicators/libayatana-indicator.git
+        tag: 0.9.1
+
+  - name: libayatana-appindicator # Dependency of netbird-ui
+    buildsystem: cmake-ninja
+    config-opts:
+      - -DENABLE_BINDINGS_MONO=NO
+      - -DENABLE_BINDINGS_VALA=NO
+    sources:
+      - type: git
+        url: https://github.com/AyatanaIndicators/libayatana-appindicator.git
+        tag: 0.5.90
+
+  - name: netbird-ui
+    buildsystem: simple
+    build-commands:
+      - "install -Dm755 netbird-ui ${FLATPAK_DEST}/bin/netbird-ui"
+      - "install -Dm755 netbird-ui-launcher.sh ${FLATPAK_DEST}/bin/netbird-ui-launcher.sh"
+      - "install -Dm644 netbird-icon-64px.png ${FLATPAK_DEST}/share/icons/hicolor/64x64/apps/netbird.png"
+      - "install -Dm644 netbird-icon-128px.png ${FLATPAK_DEST}/share/icons/hicolor/128x128/apps/netbird.png"
+      - "desktop-file-install --dir=${FLATPAK_DEST}/share/applications io.netbird.netbird_ui.desktop io.netbird.netbird_ui.desktop"
+    sources:
+      - type: archive
+        strip-components: 0 # Defaults to 1, which in our case strips the files we need
+        url: https://github.com/netbirdio/netbird/releases/download/v0.11.6/netbird-ui-linux_0.11.6_linux_amd64.tar.gz
+        sha256: dfe32bc457e8e96911369892bcac717580fd9228366567ee5abf302e7516e4a5
+
+      - type: script
+        dest-filename: netbird-ui-launcher.sh
+        commands:
+          - "/app/bin/netbird-ui -daemon-addr unix:///run/netbird.sock"
+
+      - type: file
+        path: icons/netbird-icon-64px.png
+      - type: file
+        path: icons/netbird-icon-128px.png
+
+      - type: file
+        path: io.netbird.netbird_ui.desktop

@@ -1,0 +1,5 @@
+.flatpak-builder
+.vscode
+build
+export
+build-bundle

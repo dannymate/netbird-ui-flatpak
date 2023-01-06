@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=NetBird-UI
+Exec=/app/bin/netbird-ui-launcher.sh
+Icon=io.netbird.netbird_ui
+Categories=Network;GTK;
